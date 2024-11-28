@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planejador de Rotina</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 10px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .input-group input, .input-group button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      outline: none;
+    }
+
+    .semanas {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .semana {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 20px;
+      min-width: 280px;
+      max-width: 100%;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .semana:hover {
+      transform: translateY(-5px);
+    }
+
+    .dia {
+      background-color: #e9ecef;
+      color: #333;
+      font-weight: bold;
+      text-transform: uppercase;
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #ccc;
+    }
+
+    .secoes, .tarefas {
+      margin-top: 10px;
+    }
+
+    .secao {
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f1f1f1;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .secao span {
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      padding: 10px;
+      background: #ffffff;
+      border: 1px solid #ddd;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .botao {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    .botao:hover {
+      background-color: #0056b3;
+    }
+
+    .checkbox {
+      margin-right: 10px;
+    }
+
+    .excluir, .editar {
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 5px 10px;
+      font-size: 12px;
+      color: white;
+    }
+
+    .primeiro-bloco {
+        border-bottom: solid black;
+        margin-bottom: 2rem;
+    }
+
+    .excluir {
+      background-color: #dc3545;
+    }
+
+    .excluir:hover {
+      background-color: #c82333;
+    }
+
+    .editar {
+      background-color: #ffc107;
+      color: black;
+    }
+
+    .editar:hover {
+      background-color: #e0a800;
+    }
+
+    @media (max-width: 768px) {
+      .semana {
+        min-width: 100%;
+        padding: 15px;
+      }
+
+      .dia {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .dia span {
+        margin-bottom: 10px;
+      }
+
+      .botao {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+
+      .input-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="primeiro-bloco">
+    <h1>Planejador de Rotina</h1>
+    <div class="input-group">
+      <input type="number" id="dias" min="1" placeholder="Número de dias">
+      <button class="botao" onclick="criarSemanas()">Criar Semanas</button>
+    </div>
+</div>
+    <div class="semanas" id="semanas"></div>
+  </div>
+
+  <script>
+    const diasValidos = ["domingo", "segunda", "terca", "quarta", "quinta", "sexta", "sabado"];
+
+    function criarSemanas() {
+      const dias = document.getElementById('dias').value;
+      if (!dias || dias <= 0) {
+        alert('Por favor, insira um número válido de dias.');
+        return;
+      }
+
+      const semanasContainer = document.getElementById('semanas');
+      semanasContainer.innerHTML = '';
+      const numeroSemanas = Math.ceil(dias / 7);
+
+      for (let i = 1; i <= numeroSemanas; i++) {
+        const semanaDiv = document.createElement('div');
+        semanaDiv.className = 'semana';
+        semanaDiv.innerHTML = `
+          <h2>Semana ${i}</h2>
+          <button class="botao" onclick="adicionarDia(${i})">Adicionar Dia</button>
+          <div class="secoes" id="secoes-semana-${i}"></div>
+        `;
+        semanasContainer.appendChild(semanaDiv);
+      }
+    }
+
+    function adicionarDia(semana) {
+      const dia = prompt('Digite o dia da semana (domingo à sábado):').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      if (!diasValidos.includes(dia)) {
+        alert('Por favor, insira um dia válido (domingo a sábado).');
+        return;
+      }
+
+      const secoesContainer = document.getElementById(`secoes-semana-${semana}`);
+      const diaDiv = document.createElement('div');
+      diaDiv.className = 'dia';
+      diaDiv.innerHTML = `
+        <span>${dia}</span>
+        <button onclick="mostrarSecoes(this)">➤</button>
+        <button class="editar" onclick="editarDia(this)">Editar</button>
+        <button class="excluir" onclick="excluirElemento(this)">Excluir</button>
+        <div class="secoes" style="display: none;">
+          <button class="botao" onclick="criarSecao(this)">Criar Seção</button>
+        </div>
+      `;
+      secoesContainer.appendChild(diaDiv);
+    }
+
+    function mostrarSecoes(botao) {
+      const secoesDiv = botao.nextElementSibling.nextElementSibling.nextElementSibling;
+      secoesDiv.style.display = secoesDiv.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function criarSecao(botao) {
+      const titulo = prompt('Título da seção:');
+      const horario = prompt('Horário da seção (HH:MM):');
+
+      if (!titulo || !horario) return;
+
+      const secoesDiv = botao.parentElement;
+      const secaoDiv = document.createElement('div');
+      secaoDiv.className = 'secao';
+      secaoDiv.innerHTML = `
+        <span>${horario} - ${titulo}</span>
+        <button onclick="mostrarTarefas(this)">➤</button>
+        <button class="editar" onclick="editarSecao(this)">Editar</button>
+        <button class="excluir" onclick="excluirElemento(this)">Excluir</button>
+        <div class="tarefas" style="display: none;">
+          <ul></ul>
+          <button class="botao" onclick="adicionarTarefa(this)">Adicionar Tarefa</button>
+        </div>
+      `;
+      secoesDiv.appendChild(secaoDiv);
+    }
+
+    function mostrarTarefas(botao) {
+      const tarefasDiv = botao.nextElementSibling.nextElementSibling.nextElementSibling;
+      tarefasDiv.style.display = tarefasDiv.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function adicionarTarefa(botao) {
+      const tarefa = prompt('Digite a tarefa:');
+      const ul = botao.previousElementSibling;
+
+      if (tarefa) {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <input type="checkbox" class="checkbox">
+          <span>${tarefa}</span>
+          <button class="editar" onclick="editarTarefa(this)">Editar</button>
+          <button class="excluir" onclick="excluirElemento(this)">Excluir</button>
+        `;
+        ul.appendChild(li);
+      }
+    }
+
+    function editarDia(botao) {
+      const novoDia = prompt('Digite o novo dia:').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      if (diasValidos.includes(novoDia)) {
+        botao.parentElement.querySelector('span').textContent = novoDia;
+      }
+    }
+
+    function editarSecao(botao) {
+      const novoTitulo = prompt('Digite o novo título da seção:');
+      const novoHorario = prompt('Digite o novo horário (HH:MM):');
+      if (novoTitulo && novoHorario) {
+        botao.parentElement.querySelector('span').textContent = `${novoHorario} - ${novoTitulo}`;
+      }
+    }
+
+    function editarTarefa(botao) {
+      const novaTarefa = prompt('Digite a nova tarefa:');
+      if (novaTarefa) {
+        botao.previousElementSibling.textContent = novaTarefa;
+      }
+    }
+
+    function excluirElemento(botao) {
+      botao.parentElement.remove();
+    }
+  </script>
+</body>
+</html>
